@@ -1,103 +1,84 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Glosarium</title>
-<style>
-    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
-    h1 { text-align: center; }
-    input { margin-bottom: 10px; padding: 8px; width: 100%; max-width: 300px; }
-    table { width: 100%; border-collapse: collapse; background-color: white; }
-    th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
-    th { cursor: pointer; background-color: #e2e2e2; }
-    th:hover { background-color: #d0d0d0; }
-</style>
+  <meta charset="UTF-8">
+  <title>Glosarium</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { cursor: pointer; background: #f2f2f2; }
+    input { width: 300px; padding: 5px; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
-
-<h1>Glosarium</h1>
-
-<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Cari istilah...">
-
-<table id="glosariumTable">
+  <h1>Glosarium</h1>
+  <input type="text" id="searchInput" placeholder="Cari istilah...">
+  <table id="glossaryTable">
     <thead>
-        <tr>
-            <th onclick="sortTable(0)">Istilah/Frasa (Bahasa Indonesia) &#x25B2;&#x25BC;</th>
-            <th onclick="sortTable(1)">Padanan Formal (Bahasa Inggris) &#x25B2;&#x25BC;</th>
-            <th onclick="sortTable(2, true)">Tanggal Unggah &#x25B2;&#x25BC;</th>
-        </tr>
+      <tr>
+        <th onclick="sortTable(0)">Istilah/Frasa (Bahasa Indonesia) ⬍</th>
+        <th onclick="sortTable(1)">Padanan Formal dalam Bahasa Inggris ⬍</th>
+        <th onclick="sortTable(2)">Tanggal Unggah ⬍</th>
+      </tr>
     </thead>
-    <tbody>
-        <tr>
-            <td>Nota Kesepahaman</td>
-            <td>Memorandum of Understanding</td>
-            <td>2025-08-01</td>
-        </tr>
-        <tr>
-            <td>Perjanjian Kerja Sama</td>
-            <td>Cooperation Agreement</td>
-            <td>2025-07-28</td>
-        </tr>
-        <tr>
-            <td>Surat Pernyataan Niat</td>
-            <td>Letter of Intent</td>
-            <td>2025-08-05</td>
-        </tr>
-    </tbody>
-</table>
+    <tbody></tbody>
+  </table>
 
-<script>
-function searchTable() {
-    let input = document.getElementById("searchInput").value.toLowerCase();
-    let rows = document.querySelectorAll("#glosariumTable tbody tr");
-    rows.forEach(row => {
-        let text = row.innerText.toLowerCase();
-        row.style.display = text.includes(input) ? "" : "none";
+  <script>
+    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv"; // Ganti dengan URL CSV dari Google Sheets
+
+    fetch(sheetUrl)
+      .then(res => res.text())
+      .then(csvText => {
+        const rows = csvText.split("\n").map(r => r.split(","));
+        const tbody = document.querySelector("#glossaryTable tbody");
+        rows.slice(1).forEach(row => {
+          if(row.length >= 3){
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>`;
+            tbody.appendChild(tr);
+          }
+        });
+      });
+
+    // Fitur Pencarian
+    document.getElementById("searchInput").addEventListener("keyup", function() {
+      const filter = this.value.toLowerCase();
+      const trs = document.querySelectorAll("#glossaryTable tbody tr");
+      trs.forEach(tr => {
+        const text = tr.textContent.toLowerCase();
+        tr.style.display = text.includes(filter) ? "" : "none";
+      });
     });
-}
 
-function sortTable(n, isDate = false) {
-    let table = document.getElementById("glosariumTable");
-    let switching = true;
-    let dir = "asc";
-    let switchcount = 0;
-
-    while (switching) {
+    // Fitur Sortir
+    function sortTable(n) {
+      const table = document.getElementById("glossaryTable");
+      let switching = true, dir = "asc", switchcount = 0;
+      while (switching) {
         switching = false;
         let rows = table.rows;
-        for (let i = 1; i < (rows.length - 1); i++) {
-            let shouldSwitch = false;
-            let x = rows[i].getElementsByTagName("TD")[n];
-            let y = rows[i + 1].getElementsByTagName("TD")[n];
-
-            let xContent = isDate ? new Date(x.innerHTML) : x.innerHTML.toLowerCase();
-            let yContent = isDate ? new Date(y.innerHTML) : y.innerHTML.toLowerCase();
-
-            if (dir === "asc") {
-                if (xContent > yContent) {
-                    shouldSwitch = true;
-                    break;
-                }
-            } else if (dir === "desc") {
-                if (xContent < yContent) {
-                    shouldSwitch = true;
-                    break;
-                }
-            }
+        for (let i = 1; i < rows.length - 1; i++) {
+          let shouldSwitch = false;
+          let x = rows[i].getElementsByTagName("TD")[n];
+          let y = rows[i + 1].getElementsByTagName("TD")[n];
+          if (dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+            shouldSwitch = true; break;
+          }
+          if (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+            shouldSwitch = true; break;
+          }
         if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            switchcount++;
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+          switchcount++;
+        } else {
+          if (switchcount === 0 && dir === "asc") { dir = "desc"; switching = true; }
         }
+        }
+      }
     }
-    if (switchcount === 0 && dir === "asc") {
-        dir = "desc";
-        switching = true;
-    }
-  }
-}
-</script>
-
+  </script>
 </body>
 </html>
