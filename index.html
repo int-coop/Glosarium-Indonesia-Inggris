@@ -1,66 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Glosarium</title>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- DataTables CSS & JS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Glosarium</title>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- PapaParse (CSV parser, menangani koma di dalam field) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<!-- DataTables CSS & JS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background:#fafafa; }
+  h1 { text-align:center; }
+  #glossaryTable { width:100%; border-collapse:collapse; background:#fff; }
+  th, td { padding:8px; border:1px solid #ddd; text-align:left; }
+  th { background:#f2f2f2; cursor:pointer; }
+  .dt-container { max-width:1100px; margin:0 auto; }
+  #searchInput { margin-bottom:10px; padding:6px; width:100%; max-width:360px; }
+</style>
 </head>
 <body>
+  <div class="dt-container">
     <h1>Glosarium</h1>
-    <table id="glosariumTable" class="display">
-        <thead>
-            <tr>
-                <th>Istilah/Frasa (Bahasa Indonesia)</th>
-                <th>Padanan Formal (Bahasa Inggris)</th>
-                <th>Tanggal Unggah</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data akan dimuat otomatis dari Google Sheets -->
-        </tbody>
+    <input id="searchInput" type="text" placeholder="Cari istilah atau padanan..." />
+    <table id="glossaryTable" class="display">
+      <thead>
+        <tr>
+          <th>Istilah/Frasa (Bahasa Indonesia)</th>
+          <th>Padanan Formal (Bahasa Inggris)</th>
+          <th>Tanggal Unggah</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
     </table>
+  </div>
 
-    <script>
-        // Ganti URL di bawah dengan link CSV publik Google Sheets Anda
-        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv";
+<script>
+(async function(){
+  // Ganti ini dengan link CSV publik Google Sheets Anda (Publish to web -> CSV)
+  const sheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv";
 
-        $(document).ready(function() {
-            fetch(sheetURL)
-                .then(response => response.text())
-                .then(csv => {
-                    let rows = csv.split("\n").map(row => row.split(","));
-                    rows.shift(); // Hapus header pertama dari CSV
-                    let tableBody = "";
+  // util: escape HTML
+  function esc(s){ return s==null? '' : String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-                    rows.forEach(row => {
-                        if(row.length >= 3 && row[0].trim() !== "") {
-                            tableBody += `<tr>
-                                <td>${row[0]}</td>
-                                <td>${row[1]}</td>
-                                <td>${row[2]}</td>
-                            </tr>`;
-                        }
-                    });
+  // Ambil & parse CSV dengan PapaParse (download langsung)
+  Papa.parse(sheetCSV, {
+    download: true,
+    header: true,            // kita berharap baris pertama adalah header
+    skipEmptyLines: true,
+    complete: function(results) {
+      // results.data => array of objects (key = header)
+      const rows = results.data;
+      const tbody = $("#glossaryTable tbody");
+      tbody.empty();
 
-                    $("#glosariumTable tbody").html(tableBody);
+      rows.forEach(r => {
+        // fleksibel dalam nama header: coba beberapa kemungkinan
+        const term = r['Istilah/Frasa (Bahasa Indonesia)'] ?? r['Istilah'] ?? r['Term'] ?? Object.values(r)[0] ?? '';
+        const eng  = r['Padanan Formal dalam Bahasa Inggris'] ?? r['Padanan Formal (Bahasa Inggris)'] ?? r['Padanan'] ?? r['English'] ?? Object.values(r)[1] ?? '';
+        let dateRaw = r['Tanggal Unggah'] ?? r['Tanggal'] ?? r['Date'] ?? Object.values(r)[2] ?? '';
 
-                    // Aktifkan DataTables
-                    $('#glosariumTable').DataTable({
-                        "order": [[0, "asc"]], // Default urut alfabetis
-                        "language": {
-                            "search": "Cari:",
-                            "lengthMenu": "Tampilkan _MENU_ entri",
-                            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
-                            "infoEmpty": "Tidak ada data tersedia",
-                            "zeroRecords": "Tidak ditemukan data yang cocok",
-                            "paginate": {
-                                "first": "Awal",
-                                "last": "Akhir",
-                                "next": "Berikutnya",
-                                "previous": "Sebelumnya"
-                            }
+        // normalisasi tanggal ke ISO (jika memungkinkan)
+        let dateText = dateRaw ? String(dateRaw).trim() : '';
+        let timestamp = '';
+        if (dateText) {
+          // Coba parse berbagai format; Date.parse pada format ISO works; else try replace '/' -> '-'
+          let parsed = Date.parse(dateText);
+          if (isNaN(parsed)) {
+            // coba ubah dd/mm/yyyy ke yyyy-mm-dd
+            const parts = dateText.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+            if (parts) {
+              let d = parts[1].padStart(2,'0'), m = parts[2].padStart(2,'0'), y = parts[3];
+              // jika tahun 2 digit, asumsi 20xx
+              if (y.length === 2) y = '20' + y;
+              parsed = Date.parse(`${y}-${m}-${d}`);
+              if (!isNaN(parsed)) dateText = `${y}-${m}-${d}`;
+            }
+          } else {
+            // Convert parsed date to yyyy-mm-dd display
+            const dt = new Date(parsed);
+            const y = dt.getFullYear();
+            const m = String(dt.getMonth()+1).padStart(2,'0');
+            const d = String(dt.getDate()).padStart(2,'0');
+            dateText = `${y}-${m}-${d}`;
+          }
+          if (!isNaN(parsed)) timestamp = parsed;
+        }
 
+        // tambahkan row, untuk sel tanggal tambahkan data-order jika ada timestamp
+        const tr = $("<tr>");
+        tr.append(`<td>${esc(term)}</td>`);
+        tr.append(`<td>${esc(eng)}</td>`);
+        if (timestamp) {
+          tr.append(`<td data-order="${timestamp}">${esc(dateText)}</td>`);
+        } else {
+          tr.append(`<td>${esc(dateText)}</td>`);
+        }
+        tbody.append(tr);
+      });
+
+      // Inisialisasi DataTable; jika sudah pernah inisialisasi, destroy dulu
+      if ($.fn.dataTable.isDataTable('#glossaryTable')) {
+        $('#glossaryTable').DataTable().destroy();
+      }
+
+      const table = $('#glossaryTable').DataTable({
+        "order": [[0, "asc"]], // default sort kolom Istilah ascending
+        "columnDefs": [
+          // kolom tanggal tetap dianggap string, tapi karena kita pakai data-order (timestamp) sorting akan benar
+          { "targets": 2, "type": "num" } // bantu DataTables gunakan numeric ordering jika data-order ada
+        ],
+        "language": {
+          "search": "Cari:",
+          "lengthMenu": "Tampilkan _MENU_ entri",
+          "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+          "infoEmpty": "Tidak ada data tersedia",
+          "zeroRecords": "Tidak ditemukan data yang cocok",
+          "paginate": {"first":"Awal","last":"Akhir","next":"Berikutnya","previous":"Sebelumnya"}
+        },
+        "pageLength": 25
+      });
+
+      // Kaitkan kotak search kustom (opsional) ke DataTables search
+      $('#searchInput').on('keyup', function(){
+        table.search(this.value).draw();
+      });
+
+    }, // complete
+    error: function(err){
+      console.error("PapaParse error:", err);
+      alert("Gagal memuat data dari Google Sheets. Pastikan link CSV publik benar dan dapat diakses.");
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
