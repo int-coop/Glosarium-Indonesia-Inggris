@@ -1,84 +1,65 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Glosarium</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { cursor: pointer; background: #f2f2f2; }
-    input { width: 300px; padding: 5px; margin-bottom: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Glosarium</title>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
-  <h1>Glosarium</h1>
-  <input type="text" id="searchInput" placeholder="Cari istilah...">
-  <table id="glossaryTable">
-    <thead>
-      <tr>
-        <th onclick="sortTable(0)">Istilah/Frasa (Bahasa Indonesia) ⬍</th>
-        <th onclick="sortTable(1)">Padanan Formal dalam Bahasa Inggris ⬍</th>
-        <th onclick="sortTable(2)">Tanggal Unggah ⬍</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <h1>Glosarium</h1>
+    <table id="glosariumTable" class="display">
+        <thead>
+            <tr>
+                <th>Istilah/Frasa (Bahasa Indonesia)</th>
+                <th>Padanan Formal dalam Bahasa Inggris</th>
+                <th>Tanggal Unggah</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data akan dimuat otomatis dari Google Sheets -->
+        </tbody>
+    </table>
 
-  <script>
-    const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv"; // Ganti dengan URL CSV dari Google Sheets
+    <script>
+        // Ganti URL di bawah dengan link CSV publik Google Sheets Anda
+        const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv";
 
-    fetch(sheetUrl)
-      .then(res => res.text())
-      .then(csvText => {
-        const rows = csvText.split("\n").map(r => r.split(","));
-        const tbody = document.querySelector("#glossaryTable tbody");
-        rows.slice(1).forEach(row => {
-          if(row.length >= 3){
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td>`;
-            tbody.appendChild(tr);
-          }
-        });
-      });
+        $(document).ready(function() {
+            fetch(sheetURL)
+                .then(response => response.text())
+                .then(csv => {
+                    let rows = csv.split("\n").map(row => row.split(","));
+                    rows.shift(); // Hapus header pertama dari CSV
+                    let tableBody = "";
 
-    // Fitur Pencarian
-    document.getElementById("searchInput").addEventListener("keyup", function() {
-      const filter = this.value.toLowerCase();
-      const trs = document.querySelectorAll("#glossaryTable tbody tr");
-      trs.forEach(tr => {
-        const text = tr.textContent.toLowerCase();
-        tr.style.display = text.includes(filter) ? "" : "none";
-      });
-    });
+                    rows.forEach(row => {
+                        if(row.length >= 3 && row[0].trim() !== "") {
+                            tableBody += `<tr>
+                                <td>${row[0]}</td>
+                                <td>${row[1]}</td>
+                                <td>${row[2]}</td>
+                            </tr>`;
+                        }
+                    });
 
-    // Fitur Sortir
-    function sortTable(n) {
-      const table = document.getElementById("glossaryTable");
-      let switching = true, dir = "asc", switchcount = 0;
-      while (switching) {
-        switching = false;
-        let rows = table.rows;
-        for (let i = 1; i < rows.length - 1; i++) {
-          let shouldSwitch = false;
-          let x = rows[i].getElementsByTagName("TD")[n];
-          let y = rows[i + 1].getElementsByTagName("TD")[n];
-          if (dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-            shouldSwitch = true; break;
-          }
-          if (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-            shouldSwitch = true; break;
-          }
-        if (shouldSwitch) {
-          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-          switching = true;
-          switchcount++;
-        } else {
-          if (switchcount === 0 && dir === "asc") { dir = "desc"; switching = true; }
-        }
-        }
-      }
-    }
-  </script>
-</body>
-</html>
+                    $("#glosariumTable tbody").html(tableBody);
+
+                    // Aktifkan DataTables
+                    $('#glosariumTable').DataTable({
+                        "order": [[0, "asc"]], // Default urut alfabetis
+                        "language": {
+                            "search": "Cari:",
+                            "lengthMenu": "Tampilkan _MENU_ entri",
+                            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+                            "infoEmpty": "Tidak ada data tersedia",
+                            "zeroRecords": "Tidak ditemukan data yang cocok",
+                            "paginate": {
+                                "first": "Awal",
+                                "last": "Akhir",
+                                "next": "Berikutnya",
+                                "previous": "Sebelumnya"
+                            }
