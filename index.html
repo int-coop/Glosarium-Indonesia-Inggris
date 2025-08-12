@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glosarium</title>
+<style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #fafafa; }
+    h1 { text-align: center; }
+    #search { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    table { border-collapse: collapse; width: 100%; background-color: #fff; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f4f4f4; text-align: left; }
+    tr:hover { background-color: #f1f1f1; }
+</style>
+</head>
+<body>
+
+<h1>Glosarium</h1>
+<input type="text" id="search" placeholder="Cari istilah atau padanan...">
+
+<table id="glossary">
+    <thead>
+        <tr>
+            <th>Istilah (Bahasa Indonesia)</th>
+            <th>Padanan Formal (Bahasa Inggris)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Pemerintah</td>
+            <td>Government</td>
+        </tr>
+        <tr>
+            <td>Tata Kelola</td>
+            <td>Governance</td>
+        </tr>
+        <tr>
+            <td>Nota Kesepahaman</td>
+            <td>Memorandum of Understanding (MoU)</td>
+        </tr>
+        <tr>
+            <td>Hukum Perdata</td>
+            <td>Civil Law</td>
+        </tr>
+        <tr>
+            <td>Hukum Pidana</td>
+            <td>Criminal Law</td>
+        </tr>
+    </tbody>
+</table>
+
+<script>
+    document.getElementById('search').addEventListener('input', function () {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#glossary tbody tr');
+        rows.forEach(row => {
+            let text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+
+</body>
+</html>
