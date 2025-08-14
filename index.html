@@ -21,16 +21,19 @@ body {
     overflow-x: hidden;
 }
 
-/* Background layer */
-#bgLayer {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
+/* Background layers for fade crossfade */
+#bgLayer, #bgLayer2 {
+    position: fixed; top:0; left:0;
+    width:100%; height:100%;
     background-size: cover;
     background-position: center;
     filter: blur(4px) brightness(0.9);
     z-index: -2;
-    opacity: 1;
-    transition: opacity 1s ease-in-out, background-image 1s ease-in-out;
+    transition: opacity 2s ease-in-out;
+}
+#bgLayer2 {
+    z-index: -3;
+    opacity: 0;
 }
 
 /* Header bar */
@@ -62,9 +65,7 @@ body {
 }
 
 /* Tabel glassmorphism */
-.table-responsive {
-    overflow-x: auto;
-}
+.table-responsive { overflow-x: auto; }
 #glossaryTable {
     border-radius: 15px;
     overflow: hidden;
@@ -168,6 +169,7 @@ body {
 </div>
 
 <script>
+// Fade crossfade background
 const baliImages = [
   "https://i.imgur.com/Xoq5M7D.jpeg",
   "https://i.imgur.com/g58VxMv.jpeg",
@@ -175,19 +177,28 @@ const baliImages = [
   "https://i.imgur.com/ssG72cT.jpeg",
   "https://i.imgur.com/BKsdvcO.jpeg"
 ];
-
 let bgIndex = 0;
 const bgLayer = document.getElementById("bgLayer");
-function nextBg(){
-  bgLayer.style.opacity=0;
-  setTimeout(()=>{
-    bgLayer.style.backgroundImage=`url('${baliImages[bgIndex]}')`;
-    bgLayer.style.opacity=1;
-    bgIndex=(bgIndex+1)%baliImages.length;
-  },1000);
+const bgLayer2 = document.createElement('div');
+bgLayer2.id = 'bgLayer2';
+document.body.appendChild(bgLayer2);
+
+bgLayer.style.backgroundImage = `url('${baliImages[0]}')`;
+bgIndex = 1;
+
+function nextBgFade() {
+  const nextImage = `url('${baliImages[bgIndex]}')`;
+  bgLayer2.style.backgroundImage = nextImage;
+  bgLayer2.style.opacity = 1; // fade in new layer
+
+  setTimeout(() => {
+    bgLayer.style.backgroundImage = nextImage; // replace old layer
+    bgLayer2.style.opacity = 0; // fade out overlay
+    bgIndex = (bgIndex + 1) % baliImages.length;
+  }, 2000); // durasi fade
 }
-nextBg();
-setInterval(nextBg,8000);
+
+setInterval(nextBgFade, 8000);
 
 // Load glosarium
 (async function(){
@@ -211,7 +222,7 @@ setInterval(nextBg,8000);
       });
 
       const table=$("#glossaryTable").DataTable({
-        dom:'t<"bottom"ip>', // hilangkan search default
+        dom:'t<"bottom"ip>',
         order:[[0,"asc"]],
         columnDefs:[{targets:2,type:"num"}],
         language:{lengthMenu:"Tampilkan _MENU_ entri",info:"Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",infoEmpty:"Tidak ada data tersedia",zeroRecords:"Tidak ditemukan data yang cocok",paginate:{first:"Awal",last:"Akhir",next:"Berikutnya",previous:"Sebelumnya"}},
@@ -238,7 +249,7 @@ setInterval(nextBg,8000);
       }
       tableBody.addEventListener("scroll", updateRowBlur);
       window.addEventListener("resize", updateRowBlur);
-      updateRowBlur(); // initial call
+      updateRowBlur();
     }
   });
 })();
