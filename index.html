@@ -14,14 +14,15 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <style>
-  body {
+body {
     font-family: Arial, sans-serif;
     margin: 20px;
     position: relative;
     overflow-x: hidden;
-  }
-  /* Layer background */
-  #bgLayer {
+}
+
+/* Background layer */
+#bgLayer {
     position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
     background-size: cover;
@@ -30,20 +31,21 @@
     z-index: -2;
     opacity: 1;
     transition: opacity 1s ease-in-out, background-image 1s ease-in-out;
-  }
-  /* Header bar */
-  .header-bar {
+}
+
+/* Header bar */
+.header-bar {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
-  }
-  .header-bar img {
+}
+.header-bar img {
     max-width: 150px;
     height: auto;
     opacity: 0;
     animation: fadeIn 1.5s ease forwards;
-  }
-  .header-bar h1 {
+}
+.header-bar h1 {
     flex: 1;
     text-align: center;
     margin: 0;
@@ -53,45 +55,60 @@
     opacity: 0;
     animation: fadeIn 1.5s ease forwards;
     animation-delay: 0.5s;
-  }
-  @keyframes fadeIn {
+}
+@keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
-  }
-  /* Tabel glassmorphism dengan gradient */
-  #glossaryTable {
+}
+
+/* Tabel glassmorphism */
+.table-responsive {
+    overflow-x: auto;
+}
+#glossaryTable {
     border-radius: 15px;
     overflow: hidden;
-    background: linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.35) 0%,
-        rgba(255, 255, 255, 0.25) 100%
-      );
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  }
-  #glossaryTable thead th {
-    background: linear-gradient(
-        145deg,
-        rgba(79, 147, 206, 0.7) 0%,
-        rgba(79, 147, 206, 0.5) 100%
-      );
+    width: 100%;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+#glossaryTable thead th {
+    background: rgba(79,147,206,0.6);
     color: #fff;
     text-transform: uppercase;
     font-weight: bold;
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: backdrop-filter 0.3s, box-shadow 0.3s;
+}
+#glossaryTable tbody td {
+    background: rgba(255, 255, 255, 0.3); /* overlay putih */
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-  }
-  #glossaryTable tbody tr:nth-child(odd) {
-    background-color: rgba(255, 255, 255, 0.15);
-  }
-  #glossaryTable tbody tr:hover {
-    background-color: rgba(230, 240, 255, 0.25);
-  }
-  /* Search box glassmorphism + gradient */
-  #searchInput {
+    color: #000;
+    transition: transform 0.3s, filter 0.3s;
+}
+#glossaryTable tbody tr:hover td {
+    background: rgba(230, 240, 255, 0.35);
+}
+#glossaryTable tbody tr.in-view {
+    transform: translateY(0);
+    filter: blur(0);
+}
+#glossaryTable tbody tr.out-of-view {
+    transform: translateY(10px);
+    filter: blur(2px);
+}
+
+/* Search box custom */
+#searchInput {
     margin-bottom: 15px;
     padding: 8px 12px;
     border: 1px solid rgba(255, 255, 255, 0.4);
@@ -106,26 +123,26 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  #searchInput:focus {
+}
+#searchInput:focus {
     border-color: #4f93ce;
     box-shadow: 0 0 5px rgba(79, 147, 206, 0.6);
     outline: none;
-  }
-  /* Pagination */
-  .dataTables_paginate .paginate_button {
+}
+
+/* Pagination */
+.dataTables_paginate .paginate_button {
     border-radius: 4px;
     border: 1px solid transparent;
     padding: 5px 10px;
-  }
-  .dataTables_paginate .paginate_button:hover {
+}
+.dataTables_paginate .paginate_button:hover {
     background: #4f93ce !important; color: #fff !important;
-  }
+}
 </style>
 </head>
 <body>
 
-<!-- Layer background -->
 <div id="bgLayer"></div>
 
 <div class="container">
@@ -135,64 +152,93 @@
   </div>
 
   <input id="searchInput" type="text" placeholder="Cari istilah atau padanan…" class="form-control" />
-  <table id="glossaryTable" class="table table-striped table-bordered nowrap" style="width:100%">
-    <thead>
-      <tr>
-        <th>Istilah/Frasa (Bahasa Indonesia)</th>
-        <th>Padanan Formal (Bahasa Inggris)</th>
-        <th>Tanggal Unggah</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+
+  <div class="table-responsive">
+    <table id="glossaryTable" class="table table-bordered nowrap">
+      <thead>
+        <tr>
+          <th>Istilah/Frasa (Bahasa Indonesia)</th>
+          <th>Padanan Formal (Bahasa Inggris)</th>
+          <th>Tanggal Unggah</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-// Foto latar belakang dari Imgur
 const baliImages = [
-  "https://i.imgur.com/fZcupxO.jpeg",
+  "https://i.imgur.com/Xoq5M7D.jpeg",
+  "https://i.imgur.com/g58VxMv.jpeg",
+  "https://i.imgur.com/Bw6sbVH.jpeg",
+  "https://i.imgur.com/ssG72cT.jpeg",
   "https://i.imgur.com/BKsdvcO.jpeg"
 ];
 
 let bgIndex = 0;
 const bgLayer = document.getElementById("bgLayer");
-
-function nextBg() {
-  bgLayer.style.opacity = 0; // fade out
-  setTimeout(() => {
-    bgLayer.style.backgroundImage = `url('${baliImages[bgIndex]}')`;
-    bgLayer.style.opacity = 1; // fade in
-    bgIndex = (bgIndex + 1) % baliImages.length;
-  }, 1000);
+function nextBg(){
+  bgLayer.style.opacity=0;
+  setTimeout(()=>{
+    bgLayer.style.backgroundImage=`url('${baliImages[bgIndex]}')`;
+    bgLayer.style.opacity=1;
+    bgIndex=(bgIndex+1)%baliImages.length;
+  },1000);
 }
-
 nextBg();
-setInterval(nextBg, 8000);
+setInterval(nextBg,8000);
 
-// Load glosarium data
+// Load glosarium
 (async function(){
-  const sheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv"; // Ganti dengan link CSV Google Sheets
-  function esc(s){ return s ? s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) : ''; }
+  const sheetCSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv"; // ganti link CSV
+  function esc(s){return s? s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])):'';}
 
-  Papa.parse(sheetCSV, {download:true, header:true, skipEmptyLines:true,
-    complete(res) {
-      const tbody = $("#glossaryTable tbody").empty();
-      res.data.forEach(r => {
-        const term = r.Istilah || Object.values(r)[0] || '';
-        const eng = r.Padanan || Object.values(r)[1] || '';
-        const raw = r.Tanggal || '';
-        const p = Date.parse(raw), ts = isNaN(p) ? '' : p;
-        const dt = ts ? new Date(p) : '';
-        const dateText = ts ? `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}` : raw;
-        const $tr = $("<tr>").append(`<td>${esc(term)}</td><td>${esc(eng)}</td>`);
-        $tr.append(ts ? `<td data-order="${ts}">${dateText}</td>` : `<td>${esc(dateText)}</td>`);
+  Papa.parse(sheetCSV,{download:true,header:true,skipEmptyLines:true,
+    complete(res){
+      const tbody=$("#glossaryTable tbody").empty();
+      res.data.forEach(r=>{
+        const term=r.Istilah||Object.values(r)[0]||'';
+        const eng=r.Padanan||Object.values(r)[1]||'';
+        const raw=r.Tanggal||'';
+        const dt=new Date(raw);
+        const dateText= !isNaN(dt.getTime()) 
+          ? `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}` 
+          : raw;
+        const ts= !isNaN(dt.getTime()) ? dt.getTime() : '';
+        const $tr=$("<tr>").append(`<td>${esc(term)}</td><td>${esc(eng)}</td><td data-order="${ts}">${esc(dateText)}</td>`);
         tbody.append($tr);
       });
-      const table = $("#glossaryTable").DataTable({
-        order:[[0,"asc"]], columnDefs:[{targets:2,type:"num"}],
-        language:{search:"Cari:",lengthMenu:"Tampilkan _MENU_ entri",info:"Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",infoEmpty:"Tidak ada data tersedia",zeroRecords:"Tidak ditemukan data yang cocok",paginate:{first:"Awal",last:"Akhir",next:"Berikutnya",previous:"Sebelumnya"}},
-        pageLength:25});
+
+      const table=$("#glossaryTable").DataTable({
+        dom:'t<"bottom"ip>', // hilangkan search default
+        order:[[0,"asc"]],
+        columnDefs:[{targets:2,type:"num"}],
+        language:{lengthMenu:"Tampilkan _MENU_ entri",info:"Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",infoEmpty:"Tidak ada data tersedia",zeroRecords:"Tidak ditemukan data yang cocok",paginate:{first:"Awal",last:"Akhir",next:"Berikutnya",previous:"Sebelumnya"}},
+        pageLength:25
+      });
+
       $("#searchInput").on("keyup",()=>table.search($("#searchInput").val()).draw());
+
+      // Efek blur baris saat scroll
+      const tableBody = document.querySelector("#glossaryTable tbody");
+      function updateRowBlur() {
+          const rows = tableBody.querySelectorAll("tr");
+          const tableRect = tableBody.getBoundingClientRect();
+          rows.forEach(row => {
+              const rowRect = row.getBoundingClientRect();
+              if (rowRect.bottom > tableRect.top && rowRect.top < tableRect.bottom) {
+                  row.classList.add("in-view");
+                  row.classList.remove("out-of-view");
+              } else {
+                  row.classList.add("out-of-view");
+                  row.classList.remove("in-view");
+              }
+          });
+      }
+      tableBody.addEventListener("scroll", updateRowBlur);
+      window.addEventListener("resize", updateRowBlur);
+      updateRowBlur(); // initial call
     }
   });
 })();
