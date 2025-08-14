@@ -4,9 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Glosarium – Pemerintah Provinsi Bali</title>
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
-<!-- jQuery, PapaParse, Bootstrap, DataTables -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,7 +21,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Background layers for fade crossfade */
+/* Background layers for crossfade */
 #bgLayer, #bgLayer2 {
     position: fixed; top:0; left:0;
     width:100%; height:100%;
@@ -41,7 +39,7 @@ body {
 /* Logo kiri atas */
 .header-bar {
     display: flex;
-    align-items: flex-start; /* rata kiri atas */
+    align-items: flex-start;
     justify-content: flex-start;
     margin-bottom: 15px;
 }
@@ -52,7 +50,7 @@ body {
     animation: fadeIn 1.5s ease forwards;
 }
 
-/* Animasi fade in + scale untuk tabel dan search box */
+/* Animasi fade in + scale untuk tabel dan search */
 .fade-in-up {
   opacity: 0;
   transform: translateY(20px) scale(0.98);
@@ -92,10 +90,9 @@ body {
     top: 0;
     z-index: 2;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: backdrop-filter 0.3s, box-shadow 0.3s;
 }
 #glossaryTable tbody td {
-    background: rgba(255, 255, 255, 0.3); /* overlay putih */
+    background: rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     color: #000;
@@ -104,16 +101,8 @@ body {
 #glossaryTable tbody tr:hover td {
     background: rgba(230, 240, 255, 0.35);
 }
-#glossaryTable tbody tr.in-view {
-    transform: translateY(0);
-    filter: blur(0);
-}
-#glossaryTable tbody tr.out-of-view {
-    transform: translateY(10px);
-    filter: blur(2px);
-}
 
-/* Search box custom */
+/* Search box */
 #searchInput {
     margin-bottom: 15px;
     padding: 8px 12px;
@@ -121,18 +110,14 @@ body {
     border-radius: 20px;
     width: 100%;
     max-width: 360px;
-    background: linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.35) 0%,
-        rgba(255, 255, 255, 0.25) 100%
-      );
+    background: linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.25) 100%);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 #searchInput:focus {
     border-color: #4f93ce;
-    box-shadow: 0 0 5px rgba(79, 147, 206, 0.6);
+    box-shadow: 0 0 5px rgba(79,147,206,0.6);
     outline: none;
 }
 
@@ -173,7 +158,7 @@ body {
 </div>
 
 <script>
-// Fade crossfade background
+// Background crossfade
 const baliImages = [
   "https://i.imgur.com/Xoq5M7D.jpeg",
   "https://i.imgur.com/g58VxMv.jpeg",
@@ -186,7 +171,6 @@ const bgLayer = document.getElementById("bgLayer");
 const bgLayer2 = document.createElement('div');
 bgLayer2.id = 'bgLayer2';
 document.body.appendChild(bgLayer2);
-
 bgLayer.style.backgroundImage = `url('${baliImages[0]}')`;
 bgIndex = 1;
 
@@ -194,15 +178,13 @@ function nextBgFade() {
   const nextImage = `url('${baliImages[bgIndex]}')`;
   bgLayer2.style.backgroundImage = nextImage;
   bgLayer2.style.opacity = 1;
-
-  setTimeout(() => {
+  setTimeout(()=>{
     bgLayer.style.backgroundImage = nextImage;
     bgLayer2.style.opacity = 0;
-    bgIndex = (bgIndex + 1) % baliImages.length;
-  }, 2000);
+    bgIndex = (bgIndex+1)%baliImages.length;
+  },2000);
 }
-
-setInterval(nextBgFade, 8000);
+setInterval(nextBgFade,8000);
 
 // Load glosarium
 (async function(){
@@ -216,24 +198,30 @@ setInterval(nextBgFade, 8000);
         const term=r.Istilah||Object.values(r)[0]||'';
         const eng=r.Padanan||Object.values(r)[1]||'';
         const raw=r.Tanggal||'';
-        let dateText = '';
-        let ts = '';
-        if(raw){
-            // coba ubah dd/mm/yyyy atau yyyy-mm-dd
+        let dateText='', ts='';
+
+        // Parsing tanggal lebih fleksibel
+        let dt = new Date(raw);
+        if(!isNaN(dt.getTime())){
+            ts = dt.getTime();
+            dateText = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+        } else {
+            // coba format dd/mm/yyyy
             const parts = raw.split(/[\/\-]/);
             if(parts.length===3){
-                let d = parseInt(parts[0],10);
-                let m = parseInt(parts[1],10) -1;
-                let y = parseInt(parts[2],10);
-                const dt = new Date(y,m,d);
+                let d=parseInt(parts[0],10);
+                let m=parseInt(parts[1],10)-1;
+                let y=parseInt(parts[2],10);
+                dt=new Date(y,m,d);
                 if(!isNaN(dt.getTime())){
                     ts = dt.getTime();
                     dateText = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-                }
-            }
+                } else { dateText=raw; }
+            } else { dateText=raw; }
         }
+
         const $tr=$("<tr>").append(
-            `<td>${esc(term)}</td><td>${esc(eng)}</td><td data-order="${ts}">${esc(dateText)}</td>`
+          `<td>${esc(term)}</td><td>${esc(eng)}</td><td data-order="${ts}">${esc(dateText)}</td>`
         );
         tbody.append($tr);
       });
@@ -247,25 +235,6 @@ setInterval(nextBgFade, 8000);
       });
 
       $("#searchInput").on("keyup",()=>table.search($("#searchInput").val()).draw());
-
-      const tableBody = document.querySelector("#glossaryTable tbody");
-      function updateRowBlur() {
-          const rows = tableBody.querySelectorAll("tr");
-          const tableRect = tableBody.getBoundingClientRect();
-          rows.forEach(row => {
-              const rowRect = row.getBoundingClientRect();
-              if (rowRect.bottom > tableRect.top && rowRect.top < tableRect.bottom) {
-                  row.classList.add("in-view");
-                  row.classList.remove("out-of-view");
-              } else {
-                  row.classList.add("out-of-view");
-                  row.classList.remove("in-view");
-              }
-          });
-      }
-      tableBody.addEventListener("scroll", updateRowBlur);
-      window.addEventListener("resize", updateRowBlur);
-      updateRowBlur();
     }
   });
 })();
