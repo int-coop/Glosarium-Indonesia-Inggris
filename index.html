@@ -25,17 +25,17 @@
     background: #fafafa;
   }
 
-  /* Background foto keindahan alam Bali */
+  /* Background foto Bali (slideshow) */
   body::before {
     content: "";
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-image: url('https://images.unsplash.com/photo-1565760880340-0f18e06f8b53'); /* Ganti jika ingin foto lain */
     background-size: cover;
     background-position: center;
     filter: blur(4px);
     z-index: -2;
+    transition: background-image 1.5s ease-in-out;
   }
 
   /* Lapisan semi-transparan supaya teks jelas */
@@ -136,6 +136,32 @@
 </div>
 
 <script>
+/* Slideshow background */
+const baliImages = [
+  "https://images.unsplash.com/photo-1565760880340-0f18e06f8b53", // Pura di danau
+  "https://images.unsplash.com/photo-1523517833338-d69b87c15e12", // Pantai Bali
+  "https://images.unsplash.com/photo-1589308078053-198b5c2c67d8", // Sawah terasering
+  "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0", // Sunset Bali
+  "https://images.unsplash.com/photo-1509085290980-64f38a1a2d5d"  // Tari tradisional
+];
+let bgIndex = 0;
+function changeBackground() {
+  document.body.style.setProperty("--bg-image", `url('${baliImages[bgIndex]}')`);
+  document.body.beforeElement; // trigger reflow
+  document.querySelector("body::before"); // pseudo-element
+  document.body.style.setProperty("--bg-image", `url('${baliImages[bgIndex]}')`);
+  document.body.style.backgroundImage = `url('${baliImages[bgIndex]}')`;
+  document.body.setAttribute("style", `--bg-image:url('${baliImages[bgIndex]}')`);
+  document.querySelector("body").style.setProperty("--bg-image", `url('${baliImages[bgIndex]}')`);
+  document.styleSheets[0].cssRules[1].style.backgroundImage = `url('${baliImages[bgIndex]}')`;
+  bgIndex = (bgIndex + 1) % baliImages.length;
+}
+setInterval(() => {
+  document.styleSheets[0].cssRules[1].style.backgroundImage = `url('${baliImages[bgIndex]}')`;
+  bgIndex = (bgIndex + 1) % baliImages.length;
+}, 7000); // ganti setiap 7 detik
+
+/* Load data dari Google Sheets */
 (async function(){
   const sheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv";
 
