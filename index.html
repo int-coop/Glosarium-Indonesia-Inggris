@@ -21,24 +21,12 @@
   body {
     font-family: Arial, sans-serif;
     margin: 20px;
-    position: relative;
-    background: #fafafa;
-  }
-
-  /* Background foto Bali (slideshow) */
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
     background-size: cover;
     background-position: center;
-    filter: blur(4px);
-    z-index: -2;
+    background-attachment: fixed;
     transition: background-image 1.5s ease-in-out;
   }
 
-  /* Lapisan semi-transparan supaya teks jelas */
   body::after {
     content: "";
     position: fixed;
@@ -48,19 +36,19 @@
     z-index: -1;
   }
 
-  /* Sticky logo di kiri atas */
+  /* Sticky logo */
   #stickyLogo {
     position: fixed;
     top: 20px;
     left: 20px;
-    z-index: 10;
+    z-index: 999;
     background: rgba(255,255,255,0.85);
     padding: 5px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
   #stickyLogo img {
-    max-width: 200px;
+    max-width: 180px;
     height: auto;
     display: block;
   }
@@ -127,8 +115,7 @@
 
 <!-- Sticky Logo -->
 <div id="stickyLogo">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Logo_Pemerintah_Provinsi_Bali.png/800px-Logo_Pemerintah_Provinsi_Bali.png" 
-       alt="Pemerintah Provinsi Bali">
+  <img src="logo pemprov.png" alt="Pemerintah Provinsi Bali">
 </div>
 
 <div class="container">
@@ -147,18 +134,19 @@
 </div>
 
 <script>
-/* Slideshow background */
+/* Slideshow background foto alam Bali */
 const baliImages = [
-  "https://images.unsplash.com/photo-1565760880340-0f18e06f8b53",
-  "https://images.unsplash.com/photo-1523517833338-d69b87c15e12",
   "https://images.unsplash.com/photo-1589308078053-198b5c2c67d8",
+  "https://images.unsplash.com/photo-1523517833338-d69b87c15e12",
+  "https://images.unsplash.com/photo-1565760880340-0f18e06f8b53",
   "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0",
   "https://images.unsplash.com/photo-1509085290980-64f38a1a2d5d"
 ];
 let bgIndex = 0;
+document.body.style.backgroundImage = `url('${baliImages[bgIndex]}')`;
 setInterval(() => {
-  document.styleSheets[0].cssRules[1].style.backgroundImage = `url('${baliImages[bgIndex]}')`;
   bgIndex = (bgIndex + 1) % baliImages.length;
+  document.body.style.backgroundImage = `url('${baliImages[bgIndex]}')`;
 }, 7000);
 
 /* Load data dari Google Sheets */
