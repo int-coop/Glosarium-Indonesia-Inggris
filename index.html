@@ -4,6 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Glosarium – Pemerintah Provinsi Bali</title>
+
+<!-- Fonts & Library -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -16,6 +18,12 @@ body {
   margin: 20px;
   overflow-x: hidden;
   position: relative;
+}
+
+/* Container ukuran tabel */
+.dt-container {
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 /* Background crossfade layers */
@@ -40,7 +48,7 @@ body {
   margin-bottom: 15px;
 }
 .header-bar img {
-  width: 150px;
+  width: 160px;
   height: auto;
 }
 
@@ -67,7 +75,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   border-radius: 15px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.25);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid rgba(255,255,255,0.2);
@@ -92,14 +100,27 @@ body {
 }
 
 /* Pagination styling */
-.dataTables_paginate .paginate_button {
-  border-radius: 4px;
-  border: 1px solid transparent;
-  padding: 5px 10px;
+.dataTables_paginate {
+  text-align: center;
+  margin-top: 15px;
 }
-.dataTables_paginate .paginate_button:hover {
-  background: #4f93ce !important;
-  color: #fff !important;
+.dataTables_paginate .paginate_button {
+  border-radius: 6px;
+  border: 1px solid rgba(79,147,206,0.8);
+  padding: 6px 12px;
+  margin: 0 3px;
+  background: rgba(255,255,255,0.75);
+  color: #28527a !important; 
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dataTables_paginate .paginate_button:hover,
+.dataTables_paginate .paginate_button.current {
+  background: rgba(255,255,255,0.95) !important;
+  color: #28527a !important;
+  border-color: #28527a;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 </style>
 </head>
@@ -107,7 +128,7 @@ body {
 
 <div id="bgLayer"></div>
 
-<div class="container">
+<div class="dt-container">
   <div class="header-bar">
     <img src="https://i.imgur.com/8Zh9hjt.png" alt="Pemerintah Provinsi Bali">
   </div>
@@ -159,7 +180,7 @@ setInterval(nextBgFade,8000);
 
 // Load glosarium
 (async function(){
-  const sheetCSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv"; // ganti link CSV publik
+  const sheetCSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv";
 
   function esc(s){return s==null?'':String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');}
 
@@ -171,7 +192,6 @@ setInterval(nextBgFade,8000);
         const eng  = r['Padanan Formal dalam Bahasa Inggris'] ?? r['Padanan Formal (Bahasa Inggris)'] ?? r['Padanan'] ?? r['English'] ?? Object.values(r)[1] ?? '';
         let dateRaw = r['Tanggal Unggah'] ?? r['Tanggal'] ?? r['Date'] ?? Object.values(r)[2] ?? '';
 
-        // Parsing dd/mm/yyyy agar muncul dengan benar
         let dateText = dateRaw ? String(dateRaw).trim() : '';
         let timestamp = '';
         if(dateText){
@@ -211,7 +231,6 @@ setInterval(nextBgFade,8000);
     },
     error(err){ console.error("PapaParse error:",err); alert("Gagal memuat data dari Google Sheets."); }
   });
-
 })();
 </script>
 </body>
