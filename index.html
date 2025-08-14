@@ -140,7 +140,7 @@ setInterval(nextBg, 8000);
 
 // Load glosarium data
 (async function(){
-  const sheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv"; // ganti link
+  const sheetCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTIDIKfUwmik4T5jZdnHVtD-9y4e7k68d_qp-aHCw9Y8PwgGWejyz8zzRvS3WHHlzSo9tof69ZJK_lN/pub?output=csv"; // ganti link
   function esc(s){ return s ? s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) : ''; }
 
   Papa.parse(sheetCSV, {download:true, header:true, skipEmptyLines:true,
@@ -168,3 +168,4 @@ setInterval(nextBg, 8000);
 </script>
 </body>
 </html>
+
