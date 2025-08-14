@@ -58,42 +58,58 @@
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
   }
-  /* Tabel transparan blur */
+  /* Tabel glassmorphism dengan gradient */
   #glossaryTable {
-    border-radius: 12px;
+    border-radius: 15px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.35) 0%,
+        rgba(255, 255, 255, 0.25) 100%
+      );
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
   #glossaryTable thead th {
-    background: rgba(79, 147, 206, 0.85);
+    background: linear-gradient(
+        145deg,
+        rgba(79, 147, 206, 0.7) 0%,
+        rgba(79, 147, 206, 0.5) 100%
+      );
     color: #fff;
     text-transform: uppercase;
     font-weight: bold;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
   #glossaryTable tbody tr:nth-child(odd) {
-    background-color: rgba(255, 255, 255, 0.55);
+    background-color: rgba(255, 255, 255, 0.15);
   }
   #glossaryTable tbody tr:hover {
-    background-color: rgba(230, 240, 255, 0.55);
+    background-color: rgba(230, 240, 255, 0.25);
   }
-  /* Search transparan blur */
+  /* Search box glassmorphism + gradient */
   #searchInput {
     margin-bottom: 15px;
     padding: 8px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 20px;
     width: 100%;
     max-width: 360px;
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(6px);
+    background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.35) 0%,
+        rgba(255, 255, 255, 0.25) 100%
+      );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
   #searchInput:focus {
     border-color: #4f93ce;
-    box-shadow: 0 0 5px rgba(79, 147, 206, 0.5);
+    box-shadow: 0 0 5px rgba(79, 147, 206, 0.6);
     outline: none;
   }
   /* Pagination */
