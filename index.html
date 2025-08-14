@@ -48,16 +48,21 @@
     z-index: -1;
   }
 
-  /* Logo Pemprov Bali di pojok kanan atas */
-  header::before {
-    content: "";
+  /* Sticky logo di kiri atas */
+  #stickyLogo {
     position: fixed;
-    top: 20px; right: 20px;
-    width: 90px; height: 90px;
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/5/55/Coat_of_arms_of_Bali.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    z-index: 1;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    background: rgba(255,255,255,0.85);
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #stickyLogo img {
+    max-width: 200px;
+    height: auto;
+    display: block;
   }
 
   h1 {
@@ -119,7 +124,13 @@
 </style>
 </head>
 <body>
-<header></header>
+
+<!-- Sticky Logo -->
+<div id="stickyLogo">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Logo_Pemerintah_Provinsi_Bali.png/800px-Logo_Pemerintah_Provinsi_Bali.png" 
+       alt="Pemerintah Provinsi Bali">
+</div>
+
 <div class="container">
   <h1>Glosarium</h1>
   <input id="searchInput" type="text" placeholder="Cari istilah atau padanan..." class="form-control" />
@@ -138,28 +149,17 @@
 <script>
 /* Slideshow background */
 const baliImages = [
-  "https://images.unsplash.com/photo-1565760880340-0f18e06f8b53", // Pura di danau
-  "https://images.unsplash.com/photo-1523517833338-d69b87c15e12", // Pantai Bali
-  "https://images.unsplash.com/photo-1589308078053-198b5c2c67d8", // Sawah terasering
-  "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0", // Sunset Bali
-  "https://images.unsplash.com/photo-1509085290980-64f38a1a2d5d"  // Tari tradisional
+  "https://images.unsplash.com/photo-1565760880340-0f18e06f8b53",
+  "https://images.unsplash.com/photo-1523517833338-d69b87c15e12",
+  "https://images.unsplash.com/photo-1589308078053-198b5c2c67d8",
+  "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0",
+  "https://images.unsplash.com/photo-1509085290980-64f38a1a2d5d"
 ];
 let bgIndex = 0;
-function changeBackground() {
-  document.body.style.setProperty("--bg-image", `url('${baliImages[bgIndex]}')`);
-  document.body.beforeElement; // trigger reflow
-  document.querySelector("body::before"); // pseudo-element
-  document.body.style.setProperty("--bg-image", `url('${baliImages[bgIndex]}')`);
-  document.body.style.backgroundImage = `url('${baliImages[bgIndex]}')`;
-  document.body.setAttribute("style", `--bg-image:url('${baliImages[bgIndex]}')`);
-  document.querySelector("body").style.setProperty("--bg-image", `url('${baliImages[bgIndex]}')`);
-  document.styleSheets[0].cssRules[1].style.backgroundImage = `url('${baliImages[bgIndex]}')`;
-  bgIndex = (bgIndex + 1) % baliImages.length;
-}
 setInterval(() => {
   document.styleSheets[0].cssRules[1].style.backgroundImage = `url('${baliImages[bgIndex]}')`;
   bgIndex = (bgIndex + 1) % baliImages.length;
-}, 7000); // ganti setiap 7 detik
+}, 7000);
 
 /* Load data dari Google Sheets */
 (async function(){
