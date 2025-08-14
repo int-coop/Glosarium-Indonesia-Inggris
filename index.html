@@ -4,6 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Glosarium – Pemerintah Provinsi Bali</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
 <!-- jQuery, PapaParse, Bootstrap, DataTables -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -36,32 +38,35 @@ body {
     opacity: 0;
 }
 
-/* Header bar */
+/* Logo kiri atas */
 .header-bar {
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* rata kiri atas */
+    justify-content: flex-start;
     margin-bottom: 15px;
 }
 .header-bar img {
-    max-width: 150px;
+    width: 150px; /* diperbesar */
     height: auto;
     opacity: 0;
     animation: fadeIn 1.5s ease forwards;
 }
-.header-bar h1 {
-    flex: 1;
-    text-align: center;
-    margin: 0;
-    color: #28527a;
-    font-weight: bold;
-    text-shadow: 1px 1px 3px rgba(255,255,255,0.7);
-    opacity: 0;
-    animation: fadeIn 1.5s ease forwards;
-    animation-delay: 0.5s;
+
+/* Animasi fade in + scale untuk tabel dan search box */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  animation: fadeInUp 1s ease forwards;
 }
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Tabel glassmorphism */
@@ -149,12 +154,11 @@ body {
 <div class="container">
   <div class="header-bar">
     <img src="https://i.imgur.com/8Zh9hjt.png" alt="Pemerintah Provinsi Bali">
-    <h1>Glosarium</h1>
   </div>
 
-  <input id="searchInput" type="text" placeholder="Cari istilah atau padanan…" class="form-control" />
+  <input id="searchInput" type="text" placeholder="Cari istilah atau padanan…" class="form-control fade-in-up" />
 
-  <div class="table-responsive">
+  <div class="table-responsive fade-in-up">
     <table id="glossaryTable" class="table table-bordered nowrap">
       <thead>
         <tr>
@@ -189,13 +193,13 @@ bgIndex = 1;
 function nextBgFade() {
   const nextImage = `url('${baliImages[bgIndex]}')`;
   bgLayer2.style.backgroundImage = nextImage;
-  bgLayer2.style.opacity = 1; // fade in new layer
+  bgLayer2.style.opacity = 1;
 
   setTimeout(() => {
-    bgLayer.style.backgroundImage = nextImage; // replace old layer
-    bgLayer2.style.opacity = 0; // fade out overlay
+    bgLayer.style.backgroundImage = nextImage;
+    bgLayer2.style.opacity = 0;
     bgIndex = (bgIndex + 1) % baliImages.length;
-  }, 2000); // durasi fade
+  }, 2000);
 }
 
 setInterval(nextBgFade, 8000);
@@ -212,12 +216,25 @@ setInterval(nextBgFade, 8000);
         const term=r.Istilah||Object.values(r)[0]||'';
         const eng=r.Padanan||Object.values(r)[1]||'';
         const raw=r.Tanggal||'';
-        const dt=new Date(raw);
-        const dateText= !isNaN(dt.getTime()) 
-          ? `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}` 
-          : raw;
-        const ts= !isNaN(dt.getTime()) ? dt.getTime() : '';
-        const $tr=$("<tr>").append(`<td>${esc(term)}</td><td>${esc(eng)}</td><td data-order="${ts}">${esc(dateText)}</td>`);
+        let dateText = '';
+        let ts = '';
+        if(raw){
+            // coba ubah dd/mm/yyyy atau yyyy-mm-dd
+            const parts = raw.split(/[\/\-]/);
+            if(parts.length===3){
+                let d = parseInt(parts[0],10);
+                let m = parseInt(parts[1],10) -1;
+                let y = parseInt(parts[2],10);
+                const dt = new Date(y,m,d);
+                if(!isNaN(dt.getTime())){
+                    ts = dt.getTime();
+                    dateText = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+                }
+            }
+        }
+        const $tr=$("<tr>").append(
+            `<td>${esc(term)}</td><td>${esc(eng)}</td><td data-order="${ts}">${esc(dateText)}</td>`
+        );
         tbody.append($tr);
       });
 
@@ -231,7 +248,6 @@ setInterval(nextBgFade, 8000);
 
       $("#searchInput").on("keyup",()=>table.search($("#searchInput").val()).draw());
 
-      // Efek blur baris saat scroll
       const tableBody = document.querySelector("#glossaryTable tbody");
       function updateRowBlur() {
           const rows = tableBody.querySelectorAll("tr");
