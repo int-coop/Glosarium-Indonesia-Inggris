@@ -13,14 +13,11 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <style>
-html, body {
+body {
   font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
+  margin: 20px;
   overflow-x: hidden;
   position: relative;
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
 }
 
 /* Container ukuran tabel */
@@ -65,8 +62,6 @@ html, body {
   border: 1px solid rgba(255,255,255,0.4);
   background: rgba(255,255,255,0.25);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
 }
 #searchInput:focus {
   border-color: #4f93ce;
@@ -74,34 +69,28 @@ html, body {
   box-shadow: 0 0 5px rgba(79,147,206,0.6);
 }
 
-/* Table glassmorphism */
-.table-responsive { 
-  overflow-x:auto;
-  -webkit-overflow-scrolling: touch; /* smooth scroll mobile */
-}
+/* Table glassmorphism dengan sudut melengkung */
+.table-responsive { overflow-x:auto; }
 #glossaryTable {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   border-radius: 15px;
   background: rgba(255,255,255,0.25);
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid rgba(255,255,255,0.2);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.08);
+  overflow: hidden;
 }
 #glossaryTable thead th {
   background: rgba(79,147,206,0.6);
   color: #fff;
   text-transform: uppercase;
   font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 2;
 }
 #glossaryTable tbody td {
-  background: rgba(255,255,255,0.3);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: transparent;
   color: #000;
 }
 #glossaryTable tbody tr:hover td {
@@ -116,9 +105,9 @@ html, body {
 .dataTables_paginate .paginate_button {
   border-radius: 6px;
   border: 1px solid rgba(79,147,206,0.8);
-  padding: 8px 14px;
+  padding: 6px 12px;
   margin: 0 3px;
-  background: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.75);
   color: #28527a !important; 
   font-weight: bold;
   cursor: pointer;
@@ -130,30 +119,6 @@ html, body {
   color: #28527a !important;
   border-color: #28527a;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-
-/* Responsif adaptif */
-@media (max-width: 768px) {
-  #glossaryTable thead th, #glossaryTable tbody td {
-    font-size: 14px;
-    padding: 6px;
-  }
-  .header-bar img {
-    width: 120px;
-  }
-  #searchInput {
-    max-width: 100%;
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-  .dataTables_paginate .paginate_button {
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-  #glossaryTable {
-    backdrop-filter: blur(6px) saturate(140%);
-    -webkit-backdrop-filter: blur(6px) saturate(140%);
-  }
 }
 </style>
 </head>
