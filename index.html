@@ -13,11 +13,14 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <style>
-body {
+html, body {
   font-family: Arial, sans-serif;
-  margin: 20px;
+  margin: 0;
+  padding: 20px;
   overflow-x: hidden;
   position: relative;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Container ukuran tabel */
@@ -62,6 +65,8 @@ body {
   border: 1px solid rgba(255,255,255,0.4);
   background: rgba(255,255,255,0.25);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
 }
 #searchInput:focus {
   border-color: #4f93ce;
@@ -70,7 +75,10 @@ body {
 }
 
 /* Table glassmorphism */
-.table-responsive { overflow-x:auto; }
+.table-responsive { 
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll mobile */
+}
 #glossaryTable {
   width: 100%;
   border-collapse: collapse;
@@ -93,6 +101,7 @@ body {
 #glossaryTable tbody td {
   background: rgba(255,255,255,0.3);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: #000;
 }
 #glossaryTable tbody tr:hover td {
@@ -107,9 +116,9 @@ body {
 .dataTables_paginate .paginate_button {
   border-radius: 6px;
   border: 1px solid rgba(79,147,206,0.8);
-  padding: 6px 12px;
+  padding: 8px 14px;
   margin: 0 3px;
-  background: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.85);
   color: #28527a !important; 
   font-weight: bold;
   cursor: pointer;
@@ -121,6 +130,30 @@ body {
   color: #28527a !important;
   border-color: #28527a;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Responsif adaptif */
+@media (max-width: 768px) {
+  #glossaryTable thead th, #glossaryTable tbody td {
+    font-size: 14px;
+    padding: 6px;
+  }
+  .header-bar img {
+    width: 120px;
+  }
+  #searchInput {
+    max-width: 100%;
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+  .dataTables_paginate .paginate_button {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+  #glossaryTable {
+    backdrop-filter: blur(6px) saturate(140%);
+    -webkit-backdrop-filter: blur(6px) saturate(140%);
+  }
 }
 </style>
 </head>
