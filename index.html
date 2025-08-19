@@ -125,15 +125,21 @@ body {
   padding: 6px 12px;
   margin: 0 3px;
   background: rgba(255,255,255,0.75);
-  color: #fff !important; 
+  color: #fff !important; /* teks default putih */
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.dataTables_paginate .paginate_button:hover,
-.dataTables_paginate .paginate_button.current {
-  background: rgba(255,255,255,0.95) !important;
-  color: #000 !important;
+/* Pastikan semua teks anak tombol juga putih */
+.dataTables_paginate .paginate_button * {
+  color: #fff !important;
+}
+
+/* Tombol aktif & hover */
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button:hover {
+  background: rgba(255,255,255,0.95);
+  color: #000 !important; /* teks hitam saat hover */
   border-color: #28527a;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
@@ -250,5 +256,3 @@ setInterval(nextBgFade,8000);
 </script>
 </body>
 </html>
-
-
